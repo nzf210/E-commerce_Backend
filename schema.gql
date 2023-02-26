@@ -1,0 +1,29 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type House {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Query {
+  house(id: Int!): House!
+}
+
+type Mutation {
+  createHouse(createHouseInput: CreateHouseInput!): House!
+  updateHouse(updateHouseInput: UpdateHouseInput!): House!
+  removeHouse(id: Int!): House!
+}
+
+input CreateHouseInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateHouseInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
