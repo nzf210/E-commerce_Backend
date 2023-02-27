@@ -2,15 +2,19 @@ import { HasuraInsertEvent, HasuraUpdateEvent, TrackedHasuraEventHandler } from 
 import { Injectable } from '@nestjs/common';
 
 interface User {
-    item_id: string;
-    paid: boolean;
+    id: string;
+    first_name: string;
+    last_name: string;
+    level: string;
+    id_akun: string;
+    email: string;
 }
 
 @Injectable()
 export class UserService {
     @TrackedHasuraEventHandler({
         triggerName: 'user-created',
-        tableName: 'e_commerce',
+        tableName: 'users',
         definition: { type: 'insert' },
     })
 
@@ -21,12 +25,12 @@ export class UserService {
 
     @TrackedHasuraEventHandler({
         triggerName: 'user-updated',
-        tableName: 'e_commerce',
+        tableName: 'users',
         definition: { type: 'update', columns: ['item_id', 'updated_at'] },
     })
 
     handleUserUpdated(evt: HasuraUpdateEvent<User>) {
         console.log('handleUserUpdated was called, due to user.email changing and Hasura sending us a webhook!');
-        console.log('email was changed from', evt.event.data.old.paid, 'to', evt.event.data.new.paid);
+        console.log('email was changed from', evt.event.data.old, 'to', evt.event.data.new);
     }
 }
