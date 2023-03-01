@@ -15,7 +15,7 @@ interface User {
 }
 
 
-@Controller('v1')
+@Controller()
 export class AppController {
 
   constructor(
@@ -26,9 +26,15 @@ export class AppController {
   }
 
   @Get()
-  getHello(): string {
+  getPayment(): any {
     console.log('ini adalah get coba');
     return this.appService.getHello();
+  }
+
+  @Get('v1')
+  getVone() {
+    console.log('ini adalah get coba');
+    // return this.appService.getHello();
   }
 
   @Post()
@@ -36,8 +42,9 @@ export class AppController {
     return this.appService.postData();
   }
 
-  @Post('evt')
+  @Post('v1')
   postEvent(@Body() data: any) {
     return this.appService.postDataEvent(data);
   }
 }
+

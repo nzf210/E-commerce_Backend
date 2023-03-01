@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post, Get } from '@nestjs/common';
+import { Body, Controller, Post, Get, Query } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 
 interface HasuraActionsPayload<Input extends {} = {}> {
@@ -11,22 +11,22 @@ interface HasuraActionsPayload<Input extends {} = {}> {
 }
 
 interface CreatePayment {
-    itemId: string;
+    item_id: string;
     paid: boolean;
 }
 
-@Controller('payment')
+@Controller('api')
 export class PaymentController {
     constructor(private readonly paymenService: PaymentService) { }
 
-    @Get()
-    getPayment(): any {
-        return this.paymenService.getData();
+    @Get('getPaymentId')
+    getPaymentId(@Query('itemId') itemId: string) {
+        return this.paymenService.getPaymentId(itemId);
     }
 
-    @Post('/createPayment')
-    createPayment(@Body() payload: HasuraActionsPayload<{ params: CreatePayment }>): any {
-        return this.paymenService.proccesPaid(payload);
+    @Get('getItemUrl')
+    createPayment(@Query('paymentId') paymentId: string): any {
+        return this.paymenService.proccesPaid(paymentId);
     }
 
 }
