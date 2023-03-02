@@ -2,10 +2,12 @@
 import { Injectable } from '@nestjs/common';
 import { nanoid } from 'nanoid';
 import { PrismaClient } from '@prisma/client';
+import { Contract, ethers } from 'ethers';
+import listenToEvents from 'src/helper/listenToEvents';
 
 
 const prisma = new PrismaClient();
-
+const { paymentProcessor, provider, USDT } = listenToEvents;
 const items = {
     '1': { id: 1, url: 'http://UrlToDownloadItem1' },
     '2': { id: 2, url: 'http://UrlToDownloadItem2' }
@@ -13,12 +15,10 @@ const items = {
 
 @Injectable()
 export class PaymentService {
-    private static product = [
-        { id: 'ywquyqwbu', itemId: 'ywqeyqwtqwu', paid: false }
-    ];
-
-    public calculateTotal(params: { itemId_: string; paid: boolean }) {
-        console.log('params', params.itemId_, params.paid);
+    constructor() { }
+    public async calculateTotal(params: { itemId_: string; paid: boolean }) {
+        console.log('PRIVATE KEY', paymentProcessor);
+        console.log('PRIVATE USDT', USDT);
     }
 
     public processPayment(params: { total: number }): boolean {
@@ -47,28 +47,20 @@ export class PaymentService {
     public async getPaymentUrl(paymentId: any) {
         try {
             const payment = await prisma.e_commerce.findUnique({
-                where: {
-                    item_id: paymentId
-                }
+                where: { item_id: paymentId }
             });
             if (payment && payment.paid === true) {
                 return {
-                    data: {
-                        url: items[paymentId].url
-                    }
+                    data: { url: items[paymentId].url }
                 }
             } else {
                 return {
-                    data: {
-                        url: ''
-                    }
+                    data: { url: '' }
                 }
             }
-
         } catch (err) {
-
+            return { data: err }
         }
-        return { get: 'uji Coba' }
     }
 
     public async proccesPaid(params: any) {

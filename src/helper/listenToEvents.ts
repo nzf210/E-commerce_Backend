@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ethers } from "ethers";
+import { DAI, PaymentProcessor } from "./abi";
 
 const prisma = new PrismaClient();
 const listenToEvents = () => {
@@ -8,6 +9,11 @@ const listenToEvents = () => {
     const paymentProcessor = new ethers.Contract(
         '0x3bA478A49cF6D3EE62c7e7ACb8e3243ba9901a94',
         PaymentProcessor.abi,
+        provider
+    );
+    const USDT = new ethers.Contract(
+        '0xB799Ca92f1754D63C9E655923438D026Bc5fb67b',
+        DAI.abi,
         provider
     );
     paymentProcessor.on('PaymentDone', async (payer: any, amount: any, paymentId: any, date: any) => {
@@ -21,206 +27,23 @@ const listenToEvents = () => {
                 id: paymentId
             }
         });
+        if (payment) {
+            await prisma.e_commerce.update({
+                where: {
+                    id: paymentId
+                },
+                data: {
+                    paid: true
+                }
+            })
+        }
+        console.log('Payment', payment);
     });
-    console.log('paymentProcessor', paymentProcessor);
+    return { provider, paymentProcessor, USDT }
 }
 
 export default listenToEvents();
 
 
-const DAI =
-{
-    "abi": [
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_admin",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_daiAddress",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "constructor"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "address",
-                    "name": "payer",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "amount",
-                    "type": "uint256"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "paymentId",
-                    "type": "uint256"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "date",
-                    "type": "uint256"
-                }
-            ],
-            "name": "PaymentDone",
-            "type": "event"
-        },
-        {
-            "inputs": [],
-            "name": "admin",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "dai",
-            "outputs": [
-                {
-                    "internalType": "contract IERC20",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_amount",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_paymentId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "pay",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }
-    ]
-}
 
-const PaymentProcessor =
-{
-    abi: [
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_adminAddress",
-                    "type": "address"
-                },
-                {
-                    "internalType": "address",
-                    "name": "_daiAddress",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "nonpayable",
-            "type": "constructor"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "address",
-                    "name": "payer",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "amount",
-                    "type": "uint256"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "paymentId",
-                    "type": "uint256"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "date",
-                    "type": "uint256"
-                }
-            ],
-            "name": "PaymentDone",
-            "type": "event"
-        },
-        {
-            "inputs": [],
-            "name": "admin",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "dai",
-            "outputs": [
-                {
-                    "internalType": "contract IERC20",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "_amount",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "_paymentId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "pay",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }]
-}
 
-function async(payer: any, amount: any, paymentId: any, date: any) {
-    throw new Error("Function not implemented.");
-}

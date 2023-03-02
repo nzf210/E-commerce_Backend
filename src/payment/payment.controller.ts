@@ -29,4 +29,8 @@ export class PaymentController {
         return this.paymenService.proccesPaid(paymentId);
     }
 
+    @Get('getCalculate')
+    getCalculate(@Body() params: any) {
+        return this.paymenService.calculateTotal(params)
+    }
 }
